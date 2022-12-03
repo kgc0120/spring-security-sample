@@ -12,7 +12,7 @@ SecurityConfig.class
 - SecurityContext 제공, 기본적으로 ThreadLocal를 사용
 - 한 Thread에 특화되어 있는 정보
 - application 어디에서나 꺼내서 사용할 수 있다.
-- SampleService.findSercurityContextHolder() 참고
+- SampleService.findSercurityContextHolder() 참고 
 
 #### SecurityContext
 - Authentication 제공.
