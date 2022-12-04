@@ -2,12 +2,13 @@
 
 ## 스프링 시큐리티 (inflearn 백기선님 강의)
 
-SecurityConfig.class 
-  - spring security 설정 class
-  
-## Spring Security Architecture
+[//]: # (SecurityConfig.class )
 
-순서
+[//]: # (  - spring security 설정 class)
+  
+## 스프링 시큐리티 아키텍처(Spring Security Architecture)
+
+## 순서
 1. 어느 부분에서 Authentication은 저장되는가
 2. AuthenticationManager를 통해서 인증된다.(Authentication) 
 3. 결과로 나온 Authentication을 다시 SecurityContextHolder에 저장은 어디서?
@@ -19,7 +20,7 @@ SecurityConfig.class
 9. 인증과 인가처리에 발생한 에러가 어떻게 처리되는지? ExceptionTranslationFilter
 
 ### SecurityContextHolder와 Authentication
-
+- Spring Security 핵심 객체
   #### SecurityContextHolder
    - SecurityContext 제공, 기본적으로 ThreadLocal를 사용
    - 한 Thread에 특화되어 있는 정보
@@ -68,7 +69,7 @@ SecurityConfig.class
 - SecurityConfig 설정에 따라서 등록되는 Filter에 개수가 달라진다.
 
 ### DelegatingFilterProxy와 FilterChainProxy
-
+- 둘 다 서블릿 Filter 용도가 다르다.
   #### DelegatingFilterProxy
    - 일반적인 서블릿 필터(위에서 살펴본 다른 필터들과 같은 서블릿 필터지만 서블릿에 직접 등록되는 필터)
    - 서블릿 필터 처리를 스프링에 들어있는 빈으로 위이함고 싶을 때 사용하는 서블릿 필터
@@ -79,17 +80,17 @@ SecurityConfig.class
   #### FilterChainProxy
    - 보통 "springSecurityFilterChain" 이라는 이름의 빈으로 등록된다.
 
-### AccessDecisionManager(인가할 때 사용)
-
+### AccessDecisionManager
+- 인가할 때 사용
   #### Access Control 결정을 내리는 인터페이스로, 구현체 3가지를 기본적으로 제공
-   - AffirmativeBased : 여러 Voter중에 한명이라도 허용하면 허용, 기본 전략
-   - ConsensusBased : 다수결
-   - UnanimousBased : 만장일치
+    - AffirmativeBased : 여러 Voter중에 한명이라도 허용하면 허용, 기본 전략
+    - ConsensusBased : 다수결
+    - UnanimousBased : 만장일치
 
   #### AccessDecisionVoter
-   - 해당 Authentication이 특정한 Object에 접근할 때 필요한 ConfigAttributes를 만족하는지 확인한다.
-   - WebExpressionVoter : 웹 시큐리티에서 사용하는 기본 구현체, ROLE_Xxxx가 매치하는지 확인
-   - RoleHierarchyVoter : 계층형 ROLE 지원, ADMIN > MANAGER > USER
+    - 해당 Authentication이 특정한 Object에 접근할 때 필요한 ConfigAttributes를 만족하는지 확인한다.
+    - WebExpressionVoter : 웹 시큐리티에서 사용하는 기본 구현체, ROLE_Xxxx가 매치하는지 확인
+    - RoleHierarchyVoter : 계층형 ROLE 지원, ADMIN > MANAGER > USER
 
 ### FilterSecurityInterceptor
 - AccessDecisionManager를 사용하여 Access Control또는 예외 처리하는 필터.
