@@ -6,6 +6,15 @@ SecurityConfig.class
   - spring security 설정 class
   
 ## Spring Security Architecture
+
+순서
+1. 어느 부분에서 Authentication 이 저장되는가
+2. AuthenticationManager를 통해서 인증된다.(Authentication) 
+3. Authentication은 UsernamePasswordAuthenticationFilter, SecurityContextPersisenceFilter 에서 저장되는데 이 필터들은 어디에서 등록되는가
+4. WebSecurityConfigurerAdapter를 상속받은 SecurityConfig에 설정한 정보가 Filter에 등록되는데 어떻게 url로 요청하면 FilterChainProxy 들어왔는가
+5. DelegatingFilterProxy를 통해서 FilterChainProxy에 들어온다.
+6. 권한 확인은 어디서 이루어지는가?
+
 ### SecurityContextHolder와 Authentication
 
 #### SecurityContextHolder
@@ -35,3 +44,46 @@ SecurityConfig.class
 #### UserDetailsService
 - 유저 정보를 UserDetails 타입으로 가져오는 DAO 인터페이스
 - 구현은 마음대로
+
+### AuthenticationManager와 Authentication
+- 스프링 시큐리티에서 인증(Authentication)은 AuthenticationManager가 한다.
+
+### Authentication과 SecurityContextHolder
+- UsernamePasswordAuthenticationFilter
+    * 폼 인증을 처리하는 시큐리티 필터
+    * 인증된 Authentication 객체를 SecurityContextHolder에 넣어주는 필터
+    * SecurityContextHolder.getContext().setAuthentication(authentication)
+
+- SecurityContextPersisenceFilter
+  - SecurityContext를 HTTP session에 캐시(기본 전략)하여 여러 요청에서 Authentication을 공유할 수 있는 공유 필터
+  - SecurityContextRepository를 교체하여 세션을 HTTP session이 아닌 다른 곳에 저장하는 것도 가능하다.
+  - 같은 session에서만 공유된다.
+  
+### 스프링 시큐리티 Filter와 FilterChainProxy
+- 스프링 시큐리티 필터는 FilterChainProxy가 호출한다.
+- 여기에 등록되는 필터들은 SecurityConfig에서 설정한 정보가 SecurityFilterChain을 만드는데 사용된다.(FilterChainProxy.getFilters에 SecurityFilterChain)
+- SecurityConfig 설정에 따라서 등록되는 Filter에 개수가 달라진다.
+
+### DelegatingFilterProxy와 FilterChainProxy
+#### DelegatingFilterProxy
+- 일반적인 서블릿 필터(위에서 살펴본 다른 필터들과 같은 서블릿 필터지만 서블릿에 직접 등록되는 필터)
+- 서블릿 필터 처리를 스프링에 들어있는 빈으로 위이함고 싶을 때 사용하는 서블릿 필터
+- 타겟 빈 이름을 설정한다.
+- 스프링 부트 없이 스프링 시큐리티 설정할 때는 AbstractSecurityWebApplicationInitializer를 사용해서 등록
+- 스프링 부트를 사용할 때는 자동으로 등록된다. (SecurityFilterAutoConfiguration)
+
+#### FilterChainProxy
+- 보통 "springSecurityFilterChain" 이라는 이름의 빈으로 등록된다.
+
+### AccessDecisionManager
+#### Access Control 결정을 내리는 인터페이스로, 구현체 3가지를 기본적으로 제공
+- AffirmativeBased : 여러 Voter중에 한명이라도 허용하면 허용, 기본 전략
+- ConsensusBased : 다수결
+- UnanimousBased : 만장일치
+
+#### AccessDecisionVoter
+- 해당 Authentication이 특정한 Object에 접근할 때 필요한 ConfigAttrivutes를 만족하는지 확인한다.
+- WebExpressionVoter : 웹 시큐리티에서 사용하는 기본 구현체, ROLE_Xxxx가 매치하는지 확인
+- RoleHierarchyVoter : 계층형 ROLE 지원, ADMIN > MANAGER > USER
+
+
