@@ -11,12 +11,12 @@ SecurityConfig.class
 1. 어느 부분에서 Authentication은 저장되는가
 2. AuthenticationManager를 통해서 인증된다.(Authentication) 
 3. 결과로 나온 Authentication을 다시 SecurityContextHolder에 저장은 어디서?
-4. Authentication은 UsernamePasswordAuthenticationFilter, SecurityContextPersisenceFilter 에서 저장되는데 이 필터들은 어디에서 등록되는가
-5. WebSecurityConfigurerAdapter를 상속받은 SecurityConfig에 설정한 정보가 Filter에 등록되는데 어떻게 url로 요청하면 FilterChainProxy 들어왔는가
+4. Authentication은 UsernamePasswordAuthenticationFilter, SecurityContextPersisenceFilter 에서 저장되는데 그러면 이 필터들은 어디에서 등록되는가?
+5. WebSecurityConfigurerAdapter를 상속받은 SecurityConfig에 설정한 정보가 Filter에 등록되는데 어떻게 url로 요청하면 FilterChainProxy 들어왔는가?
 6. DelegatingFilterProxy를 통해서 FilterChainProxy에 들어온다.
 7. 권한 확인(인가)은 어디서 이루어지는가? AccessDecisionManager
 8. AccessDecisionManager는 어디서 사용하고 있는가? FilterSecurityInterceptor
-9. 인증과 인가처리에 발생한 에러가 어떻게 처리되는지?
+9. 인증과 인가처리에 발생한 에러가 어떻게 처리되는지? ExceptionTranslationFilter
 
 ### SecurityContextHolder와 Authentication
 
@@ -93,3 +93,20 @@ SecurityConfig.class
 - AccessDecisionManager를 사용하여 Access Control또는 예외 처리하는 필터.
 - 대부분의 경우 FilterChainProxy에 제일 마지막 필터로 들어있다.
 
+### ExceptionTranslationFilter
+- 필터 체인에서 발생하는 AccessDeniedException과 AuthenticationException을 처리하는 필터
+  
+  #### AuthenticationException
+    - AuthenticationEntryPoint 실행
+    - AbstractSecurityInterceptor 하위 클래스(예, FilterSecurityInterceptor)에서 발생하는 예외만 처리
+    - 그렇다면 UsernamePasswordAuthenticationFilter에서 발생한 인증 에러는? UsernamePasswordAuthenticationFilter 자체에서 처리한다.
+
+  #### AccessDeniedException
+    - 익명 사용자라면 AuthenticationEntryPoint 실행
+    - 익명 사용자가 아니라면 AccessDeniedHandler에게 위임
+
+
+## 정리
+DeligatingFilterProxy -> FilterChaninProxy -> 시큐리티 필터 목록들(체인들은 어떻게 만들어지는가? WebSecurity, HttpSecurity를 이용해서 만들어진다. 참고 - WebSecurity 주석)
+-> 인증 관련된 객체(AuthenticationManager) -> 인가 관련된 객체(AccessDecisionManager)
+-> SecurityContextHolder -> SecurityContext -> Authentication -> Pricipal, GrantAuthority
