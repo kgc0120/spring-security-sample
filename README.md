@@ -8,12 +8,15 @@ SecurityConfig.class
 ## Spring Security Architecture
 
 순서
-1. 어느 부분에서 Authentication 이 저장되는가
+1. 어느 부분에서 Authentication은 저장되는가
 2. AuthenticationManager를 통해서 인증된다.(Authentication) 
-3. Authentication은 UsernamePasswordAuthenticationFilter, SecurityContextPersisenceFilter 에서 저장되는데 이 필터들은 어디에서 등록되는가
-4. WebSecurityConfigurerAdapter를 상속받은 SecurityConfig에 설정한 정보가 Filter에 등록되는데 어떻게 url로 요청하면 FilterChainProxy 들어왔는가
-5. DelegatingFilterProxy를 통해서 FilterChainProxy에 들어온다.
-6. 권한 확인은 어디서 이루어지는가?
+3. 결과로 나온 Authentication을 다시 SecurityContextHolder에 저장은 어디서?
+4. Authentication은 UsernamePasswordAuthenticationFilter, SecurityContextPersisenceFilter 에서 저장되는데 이 필터들은 어디에서 등록되는가
+5. WebSecurityConfigurerAdapter를 상속받은 SecurityConfig에 설정한 정보가 Filter에 등록되는데 어떻게 url로 요청하면 FilterChainProxy 들어왔는가
+6. DelegatingFilterProxy를 통해서 FilterChainProxy에 들어온다.
+7. 권한 확인(인가)은 어디서 이루어지는가? AccessDecisionManager
+8. AccessDecisionManager는 어디서 사용하고 있는가? FilterSecurityInterceptor
+9. 인증과 인가처리에 발생한 에러가 어떻게 처리되는지?
 
 ### SecurityContextHolder와 Authentication
 
@@ -45,7 +48,7 @@ SecurityConfig.class
 - 유저 정보를 UserDetails 타입으로 가져오는 DAO 인터페이스
 - 구현은 마음대로
 
-### AuthenticationManager와 Authentication
+### AuthenticationManager(인증할 때 사용)와 Authentication
 - 스프링 시큐리티에서 인증(Authentication)은 AuthenticationManager가 한다.
 
 ### Authentication과 SecurityContextHolder
@@ -75,15 +78,18 @@ SecurityConfig.class
 #### FilterChainProxy
 - 보통 "springSecurityFilterChain" 이라는 이름의 빈으로 등록된다.
 
-### AccessDecisionManager
+### AccessDecisionManager(인가할 때 사용)
 #### Access Control 결정을 내리는 인터페이스로, 구현체 3가지를 기본적으로 제공
 - AffirmativeBased : 여러 Voter중에 한명이라도 허용하면 허용, 기본 전략
 - ConsensusBased : 다수결
 - UnanimousBased : 만장일치
 
 #### AccessDecisionVoter
-- 해당 Authentication이 특정한 Object에 접근할 때 필요한 ConfigAttrivutes를 만족하는지 확인한다.
+- 해당 Authentication이 특정한 Object에 접근할 때 필요한 ConfigAttributes를 만족하는지 확인한다.
 - WebExpressionVoter : 웹 시큐리티에서 사용하는 기본 구현체, ROLE_Xxxx가 매치하는지 확인
 - RoleHierarchyVoter : 계층형 ROLE 지원, ADMIN > MANAGER > USER
 
+### FilterSecurityInterceptor
+- AccessDecisionManager를 사용하여 Access Control또는 예외 처리하는 필터.
+- 대부분의 경우 FilterChainProxy에 제일 마지막 필터로 들어있다.
 

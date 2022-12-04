@@ -26,20 +26,26 @@ public class SampleController {
 
     @GetMapping("/info")
     public String info(Model model, Principal principal) {
-        model.addAttribute("message", "Info");
+        model.addAttribute("message", "Info, ");
         return "info";
     }
 
     @GetMapping("/dashboard")
     public String dashboard(Model model, Principal principal) {
-        model.addAttribute("message", "dashboard"+ principal.getName());
+        model.addAttribute("message", "dashboard, "+ principal.getName());
         return "dashboard";
     }
 
     @GetMapping("/admin")
     public String admin(Model model, Principal principal) {
-        model.addAttribute("message", "admin"+ principal.getName());
+        model.addAttribute("message", "Hello admin, "+ principal.getName());
         return "admin";
+    }
+
+    @GetMapping("/user")
+    public String user(Model model, Principal principal) {
+        model.addAttribute("message", "Hello user, "+ principal.getName());
+        return "user";
     }
 
 }
